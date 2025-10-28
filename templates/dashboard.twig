@@ -1,0 +1,64 @@
+{% extends "base.twig" %}
+
+{% block title %}Dashboard - TicketApp{% endblock %}
+
+{% block content %}
+<script type="module">
+  import { isAuthenticated } from './public/js/auth.js';
+  
+  if (!isAuthenticated()) {
+    window.location.href = 'index.php';
+  }
+</script>
+
+<div class="grid cols-3" style="margin-bottom: 18px;">
+  <div class="card">
+    <h4>Total tickets</h4>
+    <p id="totalTickets" style="font-size: 26px; font-weight: 700;">0</p>
+  </div>
+  <div class="card">
+    <h4>Open tickets</h4>
+    <p id="openTickets" style="font-size: 26px; font-weight: 700;">0</p>
+  </div>
+  <div class="card">
+    <h4>Resolved</h4>
+    <p id="resolvedTickets" style="font-size: 26px; font-weight: 700;">0</p>
+    <p id="inProgressTickets" style="margin-top: 8px; color: #475569;">In progress: 0</p>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Quick actions</h3>
+  <div style="display: flex; gap: 12px; margin-top: 12px;">
+    <a href="tickets.php" class="btn btn-primary">Manage Tickets</a>
+    <button onclick="handleLogout()" class="btn btn-ghost">Logout</button>
+  </div>
+</div>
+
+<script type="module">
+  import { signOut } from './public/js/auth.js';
+  import { loadTickets } from './public/js/storage.js';
+  import { showToast } from './public/js/toast.js';
+  
+  const tickets = loadTickets();
+  const total = tickets.length;
+  const open = tickets.filter(t => t.status === 'open').length;
+  const resolved = tickets.filter(t => t.status === 'closed').length;
+  const inProgress = tickets.filter(t => t.status === 'in_progress').length;
+  
+  document.getElementById('totalTickets').textContent = total;
+  document.getElementById('openTickets').textContent = open;
+  document.getElementById('resolvedTickets').textContent = resolved;
+  document.getElementById('inProgressTickets').textContent = `In progress: ${inProgress}`;
+  
+  window.handleLogout = function() {
+    signOut();
+    showToast('Logged out successfully', 'success');
+    setTimeout(() => {
+      window.location.href = 'index.php';
+    }, 500);
+  };
+</script>
+{% endblock %}
+
+

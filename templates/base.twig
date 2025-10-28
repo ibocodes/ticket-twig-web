@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}TicketApp{% endblock %}</title>
+  <link rel="stylesheet" href="./public/css/style.css">
+</head>
+<body>
+  <div class="site">
+    <div class="decor-circle" aria-hidden="true"></div>
+    
+    <!-- Toast notification -->
+    <div class="toast-wrap">
+      <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+    </div>
+    
+    {% block content %}{% endblock %}
+    
+    <footer class="site-footer">
+      © {{ "now"|date("Y") }} TicketApp — Simple Ticket Manager
+    </footer>
+  </div>
+  
+  <script type="module" src="./public/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
+
+

@@ -1,0 +1,57 @@
+{% extends "base.twig" %}
+
+{% block title %}Sign Up - TicketApp{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 520px; margin: 12px auto;">
+  <h2>Create account</h2>
+  <form id="signupForm" aria-label="Signup form">
+    <div class="form-row">
+      <label for="username">Username</label>
+      <input id="username" type="text" required />
+    </div>
+    <div class="form-row">
+      <label for="password">Password</label>
+      <input id="password" type="password" required />
+    </div>
+    <div id="signupError" class="form-error" role="alert" style="display: none;"></div>
+    <div style="display: flex; gap: 12px; margin-top: 12px;">
+      <button class="btn btn-primary" type="submit">Sign up</button>
+    </div>
+  </form>
+</div>
+
+<script type="module">
+  import { signUp } from './public/js/auth.js';
+  import { showToast } from './public/js/toast.js';
+  
+  document.getElementById('signupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const errorDiv = document.getElementById('signupError');
+    errorDiv.style.display = 'none';
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    if (!username || !password) {
+      errorDiv.textContent = 'Please fill all fields';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    const res = signUp(username, password);
+    if (!res.success) {
+      errorDiv.textContent = res.message || 'Signup failed';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    showToast('Account created! Redirecting...', 'success');
+    setTimeout(() => {
+      window.location.href = 'dashboard.php';
+    }, 500);
+  });
+</script>
+{% endblock %}
+
+

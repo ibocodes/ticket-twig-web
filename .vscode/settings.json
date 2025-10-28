@@ -1,0 +1,18 @@
+{
+  "files.associations": {
+    "*.twig": "twig"
+  },
+  "emmet.includeLanguages": {
+    "twig": "html"
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/vendor/**": true
+  }
+}
+
+

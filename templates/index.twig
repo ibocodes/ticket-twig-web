@@ -1,0 +1,50 @@
+{% extends "base.twig" %}
+
+{% block title %}TicketApp — Fast Ticket Management{% endblock %}
+
+{% block content %}
+<div class="app-container">
+  <section class="hero" aria-label="Landing hero">
+    <!-- decorative circles -->
+    <span class="circle circle--1" aria-hidden="true"></span>
+    <span class="circle circle--2" aria-hidden="true"></span>
+    
+    <div class="hero-inner">
+      <div class="hero-copy" style="z-index: 1;">
+        <h1 class="hero-title">TicketApp — fast ticket management</h1>
+        <p class="hero-desc">
+          Create, track, and resolve customer support tickets — simple,
+          fast, and secure. A seamless way to manage customer support —
+          efficient, responsive, reliable.
+        </p>
+        <div style="display: flex; gap: 12px;">
+          <a href="authlogin.php" class="btn btn-primary" aria-label="Get Started">Get Started</a>
+          <a href="authlogin.php" class="btn btn-ghost" aria-label="Login">Login</a>
+        </div>
+      </div>
+
+      <div style="flex: 0 0 320px; z-index: 1;">
+        <div class="card" style="text-align: center;">
+          <h3 style="margin: 0 0 6px;">A snapshot</h3>
+          <p style="margin: 0; color: #475569;">
+            A compact ticket manager UI with consistent layout and
+            responsive design.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-wave" aria-hidden="true">
+      <img src="./public/assets/wave.svg" alt="" />
+    </div>
+  </section>
+
+  <section class="features" aria-label="Features">
+    <div class="grid cols-3">
+      <div class="card">Create and manage tickets</div>
+      <div class="card">Secure authentication</div>
+      <div class="card">Simple dashboard insights</div>
+    </div>
+  </section>
+</div>
+{% endblock %}

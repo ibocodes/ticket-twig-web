@@ -1,0 +1,170 @@
+{% extends "base.twig" %}
+
+{% block title %}Tickets - TicketApp{% endblock %}
+
+{% block content %}
+<script type="module">
+  import { isAuthenticated } from './public/js/auth.js';
+  
+  if (!isAuthenticated()) {
+    window.location.href = 'index.php';
+  }
+</script>
+
+<div class="card" style="margin-bottom: 12px;">
+  <h3 id="formTitle">Create Ticket</h3>
+  <form id="ticketForm">
+    <div class="form-row">
+      <label for="title">Title *</label>
+      <input id="title" type="text" required aria-invalid="false" />
+      <div id="titleError" class="form-error" style="display: none;"></div>
+    </div>
+
+    <div class="form-row">
+      <label for="desc">Description</label>
+      <textarea id="desc" rows="3"></textarea>
+      <div id="descError" class="form-error" style="display: none;"></div>
+    </div>
+
+    <div class="form-row">
+      <label for="status">Status *</label>
+      <select id="status" required>
+        <option value="open">open</option>
+        <option value="in_progress">in_progress</option>
+        <option value="closed">closed</option>
+      </select>
+      <div id="statusError" class="form-error" style="display: none;"></div>
+    </div>
+
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-primary" type="submit" id="submitBtn">Create</button>
+      <button type="button" class="btn btn-ghost" onclick="resetForm()">Reset</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Tickets</h3>
+  <div id="ticketsList" class="ticket-list" style="margin-top: 12px;">
+    <!-- Tickets will be rendered here -->
+  </div>
+</div>
+
+<script type="module">
+  import { loadTickets, saveTickets } from './public/js/storage.js';
+  import { showToast } from './public/js/toast.js';
+  
+  const VALID_STATUSES = ['open', 'in_progress', 'closed'];
+  let editingId = null;
+  let tickets = loadTickets();
+  
+  function renderTickets() {
+    const list = document.getElementById('ticketsList');
+    if (tickets.length === 0) {
+      list.innerHTML = '<p style="color: #475569;">No tickets yet — create one above.</p>';
+      return;
+    }
+    
+    list.innerHTML = tickets.map(t => `
+      <div class="card ticket-card" data-id="${t.id}">
+        <div class="ticket-meta">
+          <p class="ticket-title">${t.title}</p>
+          <p class="ticket-desc">${t.description || ''}</p>
+          <small style="color: #94a3b8;">Created: ${new Date(t.createdAt).toLocaleString()}</small>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+          <span class="status ${t.status}">${t.status.replace('_', ' ')}</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-ghost" onclick="startEdit('${t.id}')">Edit</button>
+            <button class="btn btn-ghost" onclick="handleDelete('${t.id}')">Delete</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  function validateFields(titleVal, statusVal, descVal) {
+    const errors = {};
+    if (!titleVal || !titleVal.trim()) errors.title = 'Title is required';
+    if (!VALID_STATUSES.includes(statusVal)) errors.status = 'Status must be open, in_progress or closed';
+    if (descVal && descVal.length > 1000) errors.desc = 'Description is too long';
+    return errors;
+  }
+  
+  window.startEdit = function(id) {
+    const ticket = tickets.find(t => t.id === id);
+    editingId = id;
+    document.getElementById('formTitle').textContent = 'Edit Ticket';
+    document.getElementById('title').value = ticket.title;
+    document.getElementById('desc').value = ticket.description || '';
+    document.getElementById('status').value = ticket.status;
+    document.getElementById('submitBtn').textContent = 'Update';
+  };
+  
+  window.resetForm = function() {
+    editingId = null;
+    document.getElementById('formTitle').textContent = 'Create Ticket';
+    document.getElementById('ticketForm').reset();
+    document.getElementById('submitBtn').textContent = 'Create';
+    ['titleError', 'descError', 'statusError'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+  };
+  
+  window.handleDelete = function(id) {
+    if (!confirm('Delete this ticket? This action cannot be undone.')) return;
+    tickets = tickets.filter(t => t.id !== id);
+    saveTickets(tickets);
+    renderTickets();
+    showToast('Ticket deleted', 'success');
+  };
+  
+  document.getElementById('ticketForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const title = document.getElementById('title').value;
+    const desc = document.getElementById('desc').value;
+    const status = document.getElementById('status').value;
+    
+    const errors = validateFields(title, status, desc);
+    
+    ['titleError', 'descError', 'statusError'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    
+    if (Object.keys(errors).length > 0) {
+      Object.keys(errors).forEach(key => {
+        const errorDiv = document.getElementById(key + 'Error');
+        if (errorDiv) {
+          errorDiv.textContent = errors[key];
+          errorDiv.style.display = 'block';
+        }
+      });
+      return;
+    }
+    
+    if (editingId) {
+      tickets = tickets.map(t => t.id === editingId ? 
+        { ...t, title: title.trim(), description: desc.trim(), status, updatedAt: new Date().toISOString() } : t
+      );
+      saveTickets(tickets);
+      showToast('Ticket updated', 'success');
+    } else {
+      const newTicket = {
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        description: desc.trim(),
+        status,
+        createdAt: new Date().toISOString()
+      };
+      tickets = [newTicket, ...tickets];
+      saveTickets(tickets);
+      showToast('Ticket created', 'success');
+    }
+    
+    renderTickets();
+    window.resetForm();
+  });
+  
+  renderTickets();
+</script>
+{% endblock %}

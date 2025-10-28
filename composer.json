@@ -1,0 +1,10 @@
+{
+    "name": "userpc/stage2-twig",
+    "description": "My HNG Stage 2 task with Twig",
+    "type": "project",
+    "require": {
+        "twig/twig": "^3.19"
+    },
+    "license": "MIT",
+    "minimum-stability": "stable"
+}
